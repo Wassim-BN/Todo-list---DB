@@ -21,10 +21,11 @@ def create_todos_table():
         CREATE TABLE IF NOT EXISTS todos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT NOT NULL,
-            completed BOOLEAN NOT NULL DEFAULT 0
+            completed BOOLEAN NOT NULL DEFAULT 0,
+            sequence INTEGER NULL,
+            CHECK (typeof(sequence) = 'integer' OR sequence IS NULL)
         );
     """)
-
     conn.commit()
     conn.close()
 
@@ -33,7 +34,7 @@ def fetch_todos():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM todos")
+    cursor.execute("SELECT * FROM todos ORDER BY sequence DESC")
     rows = cursor.fetchall()
 
     conn.close()
@@ -50,7 +51,7 @@ def add_todo(text):
     conn.close()
 
 
-def edit_todo(id, text=None, completed=None):
+def edit_todo(id, text=None, completed=None, sequence=None):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -64,6 +65,10 @@ def edit_todo(id, text=None, completed=None):
     if completed is not None:
         fields.append("completed = ?")
         values.append(completed)
+
+    if sequence is not None:
+        fields.append("sequence = ?")
+        values.append(sequence)
 
     # Nothing to update
     if not fields:
@@ -89,7 +94,7 @@ def delete_todo(id):
     conn.close()
 
 
-def valid_todo(id):
+def get_todo(id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
