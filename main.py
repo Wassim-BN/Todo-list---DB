@@ -38,10 +38,10 @@ def get_todos():
 def add_todo_route():
     data = request.get_json()
     text = data.get("text")
-    sequence = data.get("sequence", None)
     completed = data.get("completed", False)
+    sequence = data.get("sequence", 0)
     
-    if sequence is not None:
+    if not isinstance(sequence, int):
         return {"error": "Sequence is not supported!"}, 400
 
     if not text:
@@ -53,7 +53,7 @@ def add_todo_route():
     if any(char in punctuation for char in text):
         return {"error": "Text must not contain punctuation!"}, 400
 
-    add_todo(text, sequence, completed)
+    add_todo(text, completed, sequence)
     return {"message": "Todo added!"}
 
 
@@ -84,8 +84,8 @@ def edit_todo_route(id):
 
 
 @app.route("/todos/<int:id>", methods=["GET"])
-def get_todo_route(id):
-    if get_todo(id):
+def get_todo_route(id, sequence):
+    if get_todo(id, sequence):
         return {"message": "Todo finished!"}
 
     else:

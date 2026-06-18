@@ -34,7 +34,7 @@ def fetch_todos():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM todos ORDER BY sequence DESC")
+    cursor.execute("SELECT * FROM todos ORDER BY sequence ASC")
     rows = cursor.fetchall()
 
     conn.close()
@@ -42,11 +42,14 @@ def fetch_todos():
     return [dict(row) for row in rows]
 
 
-def add_todo(text):
+def add_todo(text, completed, sequence):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("INSERT INTO todos (text) VALUES (?)", (text,))
+    cursor.execute(
+        "INSERT INTO todos (text, completed, sequence) VALUES (?, ?, ?)",
+        (text, completed, sequence),
+    )
     conn.commit()
     conn.close()
 
@@ -93,6 +96,7 @@ def delete_todo(id):
     conn.commit()
     conn.close()
 
+
 def delete_selectedtodo(todosIds):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -102,10 +106,10 @@ def delete_selectedtodo(todosIds):
     conn.close()
 
 
-def get_todo(id):
+def get_todo(id, sequence):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("UPDATE todos SET completed = 1 WHERE id = ?", (id,))
+    cursor.execute("UPDATE todos SET completed = 1 WHERE id = ? AND sequence = ? ORDER BY sequence ASC", (id, sequence))
     conn.commit()
     conn.close()
