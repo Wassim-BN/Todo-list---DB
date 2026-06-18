@@ -93,6 +93,14 @@ def delete_todo(id):
     conn.commit()
     conn.close()
 
+def delete_selectedtodo(todosIds):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE * FROM selectedTodos")
+    conn.commit()
+    conn.close()
+
 
 def get_todo(id):
     conn = get_db_connection()
