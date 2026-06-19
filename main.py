@@ -40,6 +40,9 @@ def add_todo_route():
     text = data.get("text")
     completed = data.get("completed", False)
     sequence = data.get("sequence", 0)
+
+    if sequence < 0:
+        return {"error": "Sequence must be a positive integer!"}, 400
     
     if not isinstance(sequence, int):
         return {"error": "Sequence is not supported!"}, 400
