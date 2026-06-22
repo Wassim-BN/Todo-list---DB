@@ -47,6 +47,10 @@ def add_todo_route():
     if not isinstance(sequence, int):
         return {"error": "Sequence is not supported!"}, 400
 
+    if todosStore.uniqueTodo(sequence):
+        return {"error": "Sequence must be unique!"}, 400
+
+
     if not text:
         return {"error": "Text is required!"}, 400
 
@@ -96,7 +100,7 @@ def get_todo_route(id, sequence):
 
 
 @app.route("/todos", methods=["DELETE"])
-def delete_selectedTodos_route(todosIds):
+def delete_selectedTodos_route():
     data = request.get_json()
     if not data or "todosIds" not in data:
         return {"error": "Missing todosIds list!"}, 400
