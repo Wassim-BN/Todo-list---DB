@@ -2,13 +2,13 @@ from string import punctuation
 
 from flask import Flask, request
 from flask_cors import CORS
-# from typing_extensions import Sequence
 
+# from typing_extensions import Sequence
 from db import (
     add_todo,
     create_todos_table,
-    delete_todo,
     delete_selectedtodo,
+    delete_todo,
     edit_todo,
     fetch_todos,
     get_todo,
@@ -43,13 +43,9 @@ def add_todo_route():
 
     if sequence < 0:
         return {"error": "Sequence must be a positive integer!"}, 400
-    
+
     if not isinstance(sequence, int):
         return {"error": "Sequence is not supported!"}, 400
-
-    if todosStore.uniqueTodo(sequence):
-        return {"error": "Sequence must be unique!"}, 400
-
 
     if not text:
         return {"error": "Text is required!"}, 400
@@ -60,7 +56,12 @@ def add_todo_route():
     if any(char in punctuation for char in text):
         return {"error": "Text must not contain punctuation!"}, 400
 
-    add_todo(text, completed, sequence)
+    try:
+        add_todo(text, completed, sequence)
+    
+    except Exception as e:
+        return {"error": str(e)}, 500
+
     return {"message": "Todo added!"}
 
 
@@ -82,7 +83,7 @@ def edit_todo_route(id):
 
     if len(text) <= 4:
         return {"error": "Text must be at least 4 characters long!"}, 400
- 
+
     if any(char in punctuation for char in text):
         return {"error": "Text must not contain punctuation!"}, 400
 
@@ -104,9 +105,9 @@ def delete_selectedTodos_route():
     data = request.get_json()
     if not data or "todosIds" not in data:
         return {"error": "Missing todosIds list!"}, 400
-    
+
     todos_ids = data.get("todosIds")
-    
+
     delete_selectedtodo(todos_ids)
-    
+
     return {"message": f"{len(todos_ids)} todos deleted successfully!"}

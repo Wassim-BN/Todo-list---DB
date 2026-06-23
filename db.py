@@ -22,7 +22,7 @@ def create_todos_table():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT NOT NULL,
             completed BOOLEAN NOT NULL DEFAULT 0,
-            sequence INTEGER NULL,
+            sequence INTEGER NULL UNIQUE,
             CHECK (typeof(sequence) = 'integer' OR sequence IS NULL)
         );
     """)
@@ -46,12 +46,17 @@ def add_todo(text, completed, sequence):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "INSERT INTO todos (text, completed, sequence) VALUES (?, ?, ?)",
-        (text, completed, sequence),
-    )
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute(
+            "INSERT INTO todos (text, completed, sequence) VALUES (?, ?, ?)",
+            (text, completed, sequence),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        raise Exception("Sequence must be a unique integer!")
+
+    finally:
+        conn.close()
 
 
 def edit_todo(id, text=None, completed=None, sequence=None):
@@ -110,6 +115,9 @@ def get_todo(id, sequence):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("UPDATE todos SET completed = 1 WHERE id = ? AND sequence = ? ORDER BY sequence ASC", (id, sequence))
+    cursor.execute(
+        "UPDATE todos SET completed = 1 WHERE id = ? AND sequence = ? ORDER BY sequence ASC",
+        (id, sequence),
+    )
     conn.commit()
     conn.close()
