@@ -121,3 +121,13 @@ def get_todo(id, sequence):
     )
     conn.commit()
     conn.close()
+
+def reorder_todos(todos_ids):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    for index, todo_id in enumerate(todos_ids):
+        cursor.execute("UPDATE todos SET sequence = ? WHERE id = ?", (index + 1, todo_id))
+
+    conn.commit()
+    conn.close()

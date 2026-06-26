@@ -12,6 +12,7 @@ from db import (
     edit_todo,
     fetch_todos,
     get_todo,
+    reorder_todos
 )
 
 app = Flask(__name__)
@@ -111,3 +112,16 @@ def delete_selectedTodos_route():
     delete_selectedtodo(todos_ids)
 
     return {"message": f"{len(todos_ids)} todos deleted successfully!"}
+
+@app.route("/todos/reorder", methods=["PATCH"])
+def reorder_todos_route():
+    data = request.get_json()
+    if not data or "todosIds" not in data:
+        return {"error": "Missing todosIds list!"}, 400
+
+    todos_ids = data.get("todosIds")
+    if not todos_ids or not isinstance(todos_ids, list):
+        return {"error": "todosIds must be a list!"}, 400
+
+    reorder_todos(todos_ids)
+    return {"message": "Todos reordered!"}
