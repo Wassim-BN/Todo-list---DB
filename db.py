@@ -34,7 +34,7 @@ def fetch_todos():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM todos ORDER BY sequence ASC")
+    cursor.execute("SELECT * FROM todos")
     rows = cursor.fetchall()
 
     conn.close()
@@ -116,7 +116,7 @@ def get_todo(id, sequence):
     cursor = conn.cursor()
 
     cursor.execute(
-        "UPDATE todos SET completed = 1 WHERE id = ? AND sequence = ? ORDER BY sequence ASC",
+        "UPDATE todos SET completed = 1 WHERE id = ? AND sequence = ?",
         (id, sequence),
     )
     conn.commit()
